@@ -104,6 +104,7 @@ class CreditCardAPI < Sinatra::Base
 
   get '/api/v1/credit_card/validate/?' do
     logger.info('VALIDATE')
+    haml :validate unless params[:card_number]
     # begin
     #   param :card_number, Integer
     #   fail('Pass a card number') unless params[:card_number]
