@@ -1,7 +1,6 @@
 require 'sinatra'
 require 'rack-flash'
 require 'sinatra/param'
-require_relative './model/credit_card'
 require_relative './model/user'
 require 'config_env'
 require_relative './helpers/creditcardapi_helper'
@@ -105,36 +104,36 @@ class CreditCardAPI < Sinatra::Base
 
   get '/api/v1/credit_card/validate/?' do
     logger.info('VALIDATE')
-    begin
-      param :card_number, Integer
-      fail('Pass a card number') unless params[:card_number]
-      card = CreditCard.new(number: "#{params[:card_number]}")
-      haml :validated, locals: { number: card.number,
-                                 validate_checksum: card.validate_checksum }
-    rescue => e
-      logger.error(e)
-      redirect '/api/v1/credit_card/'
-    end
+    # begin
+    #   param :card_number, Integer
+    #   fail('Pass a card number') unless params[:card_number]
+    #   card = CreditCard.new(number: "#{params[:card_number]}")
+    #   haml :validated, locals: { number: card.number,
+    #                              validate_checksum: card.validate_checksum }
+    # rescue => e
+    #   logger.error(e)
+    #   redirect '/api/v1/credit_card/'
+    # end
   end
 
   post '/api/v1/credit_card/?' do
-    details_json = JSON.parse(request.body.read)
-
-    begin
-      card = CreditCard.new(number: "#{details_json['number']}",
-                            expiration_date:
-                            "#{details_json['expiration_date']}",
-                            credit_network: "#{details_json['credit_network']}",
-                            owner: "#{details_json['owner']}")
-      halt 400 unless card.validate_checksum
-      status 201 if card.save
-    rescue => e
-      logger.error(e)
-      halt 410
-    end
+    # details_json = JSON.parse(request.body.read)
+    #
+    # begin
+    #   card = CreditCard.new(number: "#{details_json['number']}",
+    #                         expiration_date:
+    #                         "#{details_json['expiration_date']}",
+    #                         credit_network: "#{details_json['credit_network']}",
+    #                         owner: "#{details_json['owner']}")
+    #   halt 400 unless card.validate_checksum
+    #   status 201 if card.save
+    # rescue => e
+    #   logger.error(e)
+    #   halt 410
+    # end
   end
 
   get '/api/v1/credit_card/all/?' do
-    haml :all, locals: { result: CreditCard.all.map(&:to_s) }
+    haml :all # , locals: { result: CreditCard.all.map(&:to_s) }
   end
 end

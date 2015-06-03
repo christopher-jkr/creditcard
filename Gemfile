@@ -26,12 +26,7 @@ group :development, :test do
   gem 'tux'
   gem 'hirb'
   gem 'shotgun'
-end
-
-group :test do
-  gem 'minitest'
   gem 'rack'
-  gem 'rack-test'
 end
 
 group :production do
