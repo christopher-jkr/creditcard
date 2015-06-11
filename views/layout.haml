@@ -7,6 +7,12 @@
     %h1 Welcome to Credit Card API
     - if @current_user
       = "Welcome #{@current_user.username} |"
+      %a{ href: '/' }
+        = "Home |"
+      %a{ href: "/user/#{@current_user.username}" }
+        = "Profile |"
+      %a{ href: '/services' }
+        = "Services |"
       %a{ href: '/logout' }
         logout
     - else

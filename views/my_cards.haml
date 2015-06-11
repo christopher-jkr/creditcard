@@ -1,0 +1,8 @@
+%h2 My Cards
+%table
+  %tbody
+  - result.each do |row|
+    %tr
+    - row.each do |col|
+      %td
+        = col

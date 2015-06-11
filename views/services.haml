@@ -1,12 +1,11 @@
-%p
-  %strong IGNORE ALL BELOW THIS LINE, NONE OF IT WORKS!!!!!!!!
-%p
-  Right now, the professor says to just let you validate credit
-  card numbers and you can do that with:
-  %br
-  GET api/v1/credit_card/validate?card_number=[your card number]
-%p
-  Surprisingly enough, you can also view all our credit cards at
-  %br
-  GET api/v1/credit_card/all/
-  -# %a{ href: '/api/v1/credit_card/all/' }
+%h2 Services
+%ul
+  %li
+    %a{ href: '/credit_card' }
+      Register a card
+  %li
+    %a{ href: '/credit_card/all' }
+      Retrieve cards
+  %li
+    %a{ href: '/credit_card/validate' }
+      Validate a card number

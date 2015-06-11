@@ -21,6 +21,8 @@ gem 'rack-flash3'
 gem 'pony'
 gem 'rack-ssl-enforcer'
 
+gem 'httparty'
+
 group :development, :test do
   gem 'sqlite3'
   gem 'tux'

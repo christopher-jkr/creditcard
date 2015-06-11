@@ -29,6 +29,17 @@ class CreditCardAPI < Sinatra::Base
 
   helpers Sinatra::Param
 
+  register do
+    def auth(*types)
+      condition do
+        if (types.include? :user) && !@current_user
+          flash[:error] = 'You must be logged in to view that page'
+          redirect '/login'
+        end
+      end
+    end
+  end
+
   before do
     @current_user = find_user_by_token(session[:auth_token])
   end
@@ -98,43 +109,75 @@ class CreditCardAPI < Sinatra::Base
     haml :index
   end
 
-  get '/api/v1/credit_card/?' do
+  get '/user/:username', auth: [:user] do
+    username = params[:username]
+    unless username == @current_user.username
+      flash[:error] = 'You may only look at your own profile'
+      redirect '/'
+    end
+
+    haml :profile
+  end
+
+  get '/services/?', auth: [:user] do
     haml :services
   end
 
-  get '/api/v1/credit_card/validate/?' do
+  get '/credit_card/validate/?', auth: [:user] do
     logger.info('VALIDATE')
-    haml :validate unless params[:card_number]
-    # begin
-    #   param :card_number, Integer
-    #   fail('Pass a card number') unless params[:card_number]
-    #   card = CreditCard.new(number: "#{params[:card_number]}")
-    #   haml :validated, locals: { number: card.number,
-    #                              validate_checksum: card.validate_checksum }
-    # rescue => e
-    #   logger.error(e)
-    #   redirect '/api/v1/credit_card/'
-    # end
+    if params[:number]
+      begin
+        number = params[:number]
+        save = api_validate_card(number)
+        haml :validate, locals: { result: save.body }
+      rescue
+        logger.error(e)
+        halt 410
+      end
+    else
+      haml :validate, locals: { result: '' }
+    end
   end
 
-  post '/api/v1/credit_card/?' do
-    # details_json = JSON.parse(request.body.read)
-    #
-    # begin
-    #   card = CreditCard.new(number: "#{details_json['number']}",
-    #                         expiration_date:
-    #                         "#{details_json['expiration_date']}",
-    #                         credit_network: "#{details_json['credit_network']}",
-    #                         owner: "#{details_json['owner']}")
-    #   halt 400 unless card.validate_checksum
-    #   status 201 if card.save
-    # rescue => e
-    #   logger.error(e)
-    #   halt 410
-    # end
+  get '/credit_card/?', auth: [:user] do
+    haml :card_make
   end
 
-  get '/api/v1/credit_card/all/?' do
-    haml :all # , locals: { result: CreditCard.all.map(&:to_s) }
+  post '/credit_card/?', auth: [:user] do
+    begin
+      number = params[:number]
+      credit_network = params[:credit_network]
+      expiration_date = params[:expiration_date]
+      owner = params[:owner]
+      save = api_register_card(owner, expiration_date, credit_network, number)
+      if save.code == 201
+        flash[:notice] = 'Successfully created...'
+      else
+        flash[:error] = 'Please check the card number'
+      end
+      redirect '/services'
+    rescue => e
+      logger.error(e)
+      halt 410
+    end
+  end
+
+  get '/credit_card/all/?', auth: [:user] do
+    begin
+      cards = api_retrieve_card
+      cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
+      logger.info(cards_arr)
+      arr = cards_arr.map do |var|
+        JSON.parse(var).to_a
+      end
+      result = arr.map do |var|
+        var.map { |_e, f| f }
+      end
+      logger.info(result)
+      haml :my_cards, locals: { result: result }
+    rescue => e
+      logger.error(e)
+      halt 410
+    end
   end
 end
