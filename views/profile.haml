@@ -1,10 +1,9 @@
 %h2 Profile
-%ul
-  %li
-    Username : #{@current_user.username}
-  %li
-    Email : #{@current_user.email}
-  %li
-    API Authorization Header :
-    %pre
-      "\"Bearer #{user_jwt}\""
+:markdown
+  - Username : #{@current_user.username}
+  - Email : #{@current_user.email}
+  - API Authorization Header :
+
+  ```
+  "\"Bearer #{user_jwt}\""
+  ```

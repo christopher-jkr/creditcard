@@ -23,6 +23,8 @@ gem 'rack-ssl-enforcer'
 
 gem 'httparty'
 
+gem 'rdiscount'
+
 group :development, :test do
   gem 'sqlite3'
   gem 'tux'
