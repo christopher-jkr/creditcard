@@ -12,6 +12,7 @@ module CreditCardHelper
   API_URL = 'https://appropriate-credit1card2api3.herokuapp.com/api/v1/'
   # API_URL = 'http://127.0.0.1:9393/api/v1/'
 
+  # Class for User Registration
   class Registration
     attr_accessor :username, :password, :email, :dob, :address, :fullname
 

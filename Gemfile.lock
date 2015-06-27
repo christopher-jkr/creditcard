@@ -53,6 +53,7 @@ GEM
       ffi
     rbnacl-libsodium (1.0.2)
       rbnacl (~> 3.0, >= 3.0.1)
+    rdiscount (2.1.8)
     ripl (0.7.1)
       bond (~> 0.5.1)
     ripl-multi_line (0.3.1)
@@ -106,6 +107,7 @@ DEPENDENCIES
   rack-ssl-enforcer
   rake
   rbnacl-libsodium
+  rdiscount
   shotgun
   sinatra
   sinatra-activerecord
