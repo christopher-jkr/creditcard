@@ -5,6 +5,7 @@ require_relative './model/user'
 require 'config_env'
 require_relative './helpers/creditcardapi_helper'
 require 'rack/ssl-enforcer'
+require 'dalli'
 
 configure :development, :test do
   require 'hirb'
