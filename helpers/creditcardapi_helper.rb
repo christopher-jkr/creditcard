@@ -67,7 +67,8 @@ module CreditCardHelper
   def api_retrieve_card
     url = API_URL + 'credit_card?user_id=RQST'
     headers = { 'authorization' => ('Bearer ' + user_jwt) }
-    HTTParty.get url, headers: headers
+    result = HTTParty.get url, headers: headers
+    result.body
   end
 
   def api_validate_card(number)
