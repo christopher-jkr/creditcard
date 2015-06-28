@@ -175,7 +175,7 @@ module CreditCardHelper
 
   def memcache_fetch
     cards = settings.ops_cache.fetch(@current_user.id)
-    cards = api_retrieve_card if cards == ''
+    cards = api_retrieve_card if cards == '' || cards.nil?
     data_manipulation(cards)
   end
 
