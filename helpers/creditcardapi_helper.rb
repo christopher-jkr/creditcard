@@ -174,9 +174,13 @@ module CreditCardHelper
   end
 
   def memcache_fetch
-    cards = settings.ops_cache.fetch(@current_user.id).join
+    cards = settings.ops_cache.fetch(@current_user.id)
     cards = api_retrieve_card if cards == ''
-    # cards.join if cards.class == Array
+    data_manipulation(cards)
+  end
+
+  def data_manipulation(cards)
+    cards.join if cards.class == Array
     cards_arr = cards.gsub('}{', '}}{{').split('}{')
     arr = cards_arr.map { |var| JSON.parse(var).to_a }
     arr.map { |var| var.map { |_e, f| f } }
