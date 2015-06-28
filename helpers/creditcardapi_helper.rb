@@ -174,12 +174,13 @@ module CreditCardHelper
 
   def memcache_fetch
     cards = settings.ops_cache.fetch(@current_user.id)
-    # cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
-    # arr = cards_arr.map do |var|
-    #   JSON.parse(var).to_a
-    # end
-    # arr.map do |var|
-    #   var.map { |_e, f| f }
-    # end
+    cards = api_retrieve_card if cards == ''
+    cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
+    arr = cards_arr.map do |var|
+      JSON.parse(var).to_a
+    end
+    arr.map do |var|
+      var.map { |_e, f| f }
+    end
   end
 end

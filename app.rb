@@ -233,16 +233,7 @@ class CreditCardAPI < Sinatra::Base
 
   get '/credit_card/all/?', auth: [:user] do
     begin
-      cards = api_retrieve_card
-      cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
-      logger.info(cards_arr)
-      arr = cards_arr.map do |var|
-        JSON.parse(var).to_a
-      end
-      result = arr.map do |var|
-        var.map { |_e, f| f }
-      end
-      logger.info(result)
+      result = memcache_fetch
       haml :my_cards, locals: { result: result }
     rescue => e
       logger.error(e)

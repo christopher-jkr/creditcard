@@ -1,4 +1,13 @@
 %h2 Main
 :markdown
   Our Credit Card Service is up and running!
-%p "#{result}"
+  ---
+- if @current_user
+  %h2 My Cards
+  %table
+    %tbody
+    - result.each do |row|
+      %tr
+      - row.each do |col|
+        %td
+          = col
