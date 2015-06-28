@@ -174,7 +174,7 @@ class CreditCardAPI < Sinatra::Base
   end
 
   get '/' do
-    result = memcache_fetch
+    result = memcache_fetch if @current_user
     haml :index, locals: { result: result }
   end
 

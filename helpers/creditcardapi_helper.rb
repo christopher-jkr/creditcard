@@ -173,7 +173,7 @@ module CreditCardHelper
   end
 
   def memcache_fetch
-    cards = settings.ops_cache.fetch(@current_user.user_id)
+    cards = settings.ops_cache.fetch(@current_user.id)
     # cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
     # arr = cards_arr.map do |var|
     #   JSON.parse(var).to_a
