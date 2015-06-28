@@ -100,6 +100,7 @@ class CreditCardAPI < Sinatra::Base
 
   post '/new_username' do
     # TODO: Add error message in case of JWT change
+    # REVIEW: Any point checking twice for repeat usernames?
     if params['c_user'] && params['n_user'] && params['jwt']
       n_user, jwt = params['n_user'], params['jwt']
       payload = git_jwt_dec(jwt)

@@ -24,10 +24,10 @@ gem 'rack-ssl-enforcer'
 gem 'httparty'
 
 gem 'rdiscount'
+gem 'tux'
 
 group :development, :test do
   gem 'sqlite3'
-  gem 'tux'
   gem 'hirb'
   gem 'shotgun'
   gem 'rack'
