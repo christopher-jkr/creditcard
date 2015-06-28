@@ -7,6 +7,8 @@ config_env :[ENV_NAME] do
   set :DB_KEY, "[database encryption keys encoded with base64 urlsafe encoding]"
   set :MSG_KEY, "[database encryption keys encoded with base64 urlsafe encoding]"
   set 'UI_PRIVATE_KEY', "[Private key for Client App]"
+  set 'CLIENT_ID', '[OAuth Client ID]'
+  set 'CLIENT_SECRET', '[OAuth Client Secret]'
 end
 
 config_env do

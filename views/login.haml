@@ -5,3 +5,5 @@
   %label{ for: 'password' } Password:
   %input{ type: 'password', name: 'password', id: 'password_input' }
   %input{ type: 'submit', id: 'login-form-submit', value: 'submit' }
+:markdown
+  ###[Login with Github](https://github.com/login/oauth/authorize?client_id=#{ENV['CLIENT_ID']}&scope=user:email)

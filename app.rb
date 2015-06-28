@@ -60,6 +60,64 @@ class CreditCardAPI < Sinatra::Base
     end
   end
 
+  get '/callback' do
+    result = HTTParty.post(
+      'https://github.com/login/oauth/access_token',
+      body: { client_id: ENV['CLIENT_ID'], code: params['code'],
+              client_secret: ENV['CLIENT_SECRET'] },
+      headers: { 'Accept' => 'application/json' }
+    )
+    a, b, ind, vars = {}, {}, Float, ['', '/emails']
+    vars.each_with_index do |var, idx|
+      info = HTTParty.get(
+        "https://api.github.com/user#{var}",
+        headers: { 'User-Agent' => 'stonegold546',
+                   'authorization' => ("token #{result['access_token']}") }
+      )
+      idx == 0 ? a = info : b = info
+    end
+    b.each_with_index do |email, idx|
+      ind = idx if email['primary'] == true && email['verified'] == true
+    end
+    if ind.class == Class
+      flash[:error] = 'Please verify your github primary email address!'
+      return redirect '/login'
+    end
+    login, email = a['login'], b[ind]['email']
+    if User.find_by_email(email)
+      user = User.find_by_email(email)
+      return login_user(user)
+    end
+    git_user = git_reg(login, email)
+    if repeat_data(git_user) == ' '
+      git_user.save ? login_user(git_user) : fail('Could not create new user')
+    else
+      flash[:error] = 'Your username is taken, please pick a new one'
+      jwt = git_jwt(login, email)
+      haml :new_username, locals: { user: [login, jwt] }
+    end
+  end
+
+  post '/new_username' do
+    # TODO: Add error message in case of JWT change
+    if params['c_user'] && params['n_user'] && params['jwt']
+      n_user, jwt = params['n_user'], params['jwt']
+      payload = git_jwt_dec(jwt)
+      if payload['login'] == n_user
+        flash[:error] = 'Please change the chosen username!'
+        return haml :new_username, locals: { user: [payload['login'], jwt] }
+      end
+      git_user = git_reg(n_user, payload['email'])
+      if repeat_data(git_user) == ' '
+        git_user.save ? login_user(git_user) : fail('Could not create new user')
+      else
+        flash[:error] = 'New choice of username is taken, please pick a new one'
+        jwt = git_jwt(n_user, payload['email'])
+        haml :new_username, locals: { user: [n_user, jwt] }
+      end
+    end
+  end
+
   get '/logout' do
     session[:auth_token] = nil
     flash[:notice] = 'You have logged out'

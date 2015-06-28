@@ -4,10 +4,11 @@ require 'jwt'
 require 'pony'
 require 'openssl'
 require 'httparty'
+require_relative './model_helper'
 
 # Helper module for CreditCardAPI class
 module CreditCardHelper
-  # Handling user registration
+  include ModelHelper
 
   API_URL = 'https://appropriate-credit1card2api3.herokuapp.com/api/v1/'
   # API_URL = 'http://127.0.0.1:9393/api/v1/'
@@ -28,6 +29,22 @@ module CreditCardHelper
         var && var.strip.length > 0
       end
     end
+  end
+
+  def git_reg(login, email)
+    new_user = User.new(username: login, email: email)
+    new_user.password = enc64(RbNaCl::Random.random_bytes(20))
+    new_user
+  end
+
+  def git_jwt(login, email)
+    payload = { login: login, email: email }
+    JWT.encode payload, ENV['MSG_KEY'], 'HS256'
+  end
+
+  def git_jwt_dec(jwt)
+    decoded_jwt = JWT.decode jwt, ENV['MSG_KEY'], true
+    decoded_jwt.first
   end
 
   def user_jwt
