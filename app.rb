@@ -25,6 +25,14 @@ class CreditCardAPI < Sinatra::Base
   configure do
     use Rack::Session::Cookie, secret: settings.session_secret
     use Rack::Flash, sweep: true
+
+    set :ops_cache,
+        Dalli::Client.new((ENV['MEMCACHIER_SERVERS'] || '').split(','),
+                          username: ENV['MEMCACHIER_USERNAME'],
+                          password: ENV['MEMCACHIER_PASSWORD'],
+                          socket_timeout: 1.5,
+                          socket_failure_delay: 0.2
+                         )
   end
 
   helpers Sinatra::Param
@@ -165,7 +173,8 @@ class CreditCardAPI < Sinatra::Base
   end
 
   get '/' do
-    haml :index
+    result = memcache_fetch
+    haml :index, locals: { result: result }
   end
 
   get '/user/:username', auth: [:user] do

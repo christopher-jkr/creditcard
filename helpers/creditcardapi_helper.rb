@@ -171,4 +171,15 @@ module CreditCardHelper
     reg = Registration.new(payload)
     create_account_with_registration(reg)
   end
+
+  def memcache_fetch
+    cards = settings.ops_cache.fetch(@current_user.user_id)
+    # cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
+    # arr = cards_arr.map do |var|
+    #   JSON.parse(var).to_a
+    # end
+    # arr.map do |var|
+    #   var.map { |_e, f| f }
+    # end
+  end
 end

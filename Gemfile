@@ -26,6 +26,9 @@ gem 'httparty'
 gem 'rdiscount'
 gem 'tux'
 
+gem 'dalli'
+gem 'activesupport'
+
 group :development, :test do
   gem 'sqlite3'
   gem 'hirb'
