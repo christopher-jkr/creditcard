@@ -8,6 +8,6 @@
     %tbody
     - result.each do |row|
       %tr
-      - row.each do |col|
+      - JSON.parse(row).map do |_x, y|
         %td
-          = col
+          = y
