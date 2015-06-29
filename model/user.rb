@@ -8,9 +8,9 @@ class User < ActiveRecord::Base
   validates :username, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true, format: /@/
   validates :hashed_password, presence: true
-  validates :encrytped_address, presence: true
-  validates :encrypted_fullname, presence: true
-  validates :encrypted_dob, presence: true
+  # validates :encrytped_address, presence: true
+  # validates :encrypted_fullname, presence: true
+  # validates :encrypted_dob, presence: true
 
   attr_accessible :username, :email
 

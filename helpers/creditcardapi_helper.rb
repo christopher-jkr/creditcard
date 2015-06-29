@@ -4,10 +4,11 @@ require 'jwt'
 require 'pony'
 require 'openssl'
 require 'httparty'
+require_relative './model_helper'
 
 # Helper module for CreditCardAPI class
 module CreditCardHelper
-  # Handling user registration
+  include ModelHelper
 
   API_URL = 'https://appropriate-credit1card2api3.herokuapp.com/api/v1/'
   # API_URL = 'http://127.0.0.1:9393/api/v1/'
@@ -27,6 +28,44 @@ module CreditCardHelper
       list.all? do |var|
         var && var.strip.length > 0
       end
+    end
+  end
+
+  def git_reg(login, email)
+    new_user = User.new(username: login, email: email)
+    new_user.password = enc64(RbNaCl::Random.random_bytes(20))
+    new_user
+  end
+
+  def git_jwt(email)
+    payload = { email: email }
+    JWT.encode payload, ENV['MSG_KEY'], 'HS256'
+  end
+
+  def git_jwt_dec(jwt)
+    decoded_jwt = JWT.decode jwt, ENV['MSG_KEY'], true
+    decoded_jwt.first
+  end
+
+  def git_get_info(links, access_token)
+    a = b = {}
+    links.each_with_index do |link, idx|
+      info = HTTParty.get(
+        "https://api.github.com/user#{link}",
+        headers: { 'User-Agent' => 'stonegold546',
+                   'authorization' => ("token #{access_token}") }
+      )
+      idx == 0 ? a = info : b = info
+    end
+    [a, b]
+  end
+
+  def git_repeat(git_user, login, jwt)
+    if repeat_data(git_user) == ' '
+      git_user.save ? login_user(git_user) : fail('Could not create new user')
+    else
+      flash[:error] = 'This username is taken, please pick a new one'
+      haml :new_username, locals: { user: [login, jwt] }
     end
   end
 
@@ -50,7 +89,8 @@ module CreditCardHelper
   def api_retrieve_card
     url = API_URL + 'credit_card?user_id=RQST'
     headers = { 'authorization' => ('Bearer ' + user_jwt) }
-    HTTParty.get url, headers: headers
+    result = HTTParty.get url, headers: headers
+    result.body
   end
 
   def api_validate_card(number)
@@ -153,5 +193,11 @@ module CreditCardHelper
     payload = (JWT.decode token, ENV['MSG_KEY']).first
     reg = Registration.new(payload)
     create_account_with_registration(reg)
+  end
+
+  def memcache_fetch
+    cards = settings.ops_cache.fetch(@current_user.id)
+    cards = api_retrieve_card if cards == '' || cards.nil?
+    JSON.parse(cards).to_a
   end
 end

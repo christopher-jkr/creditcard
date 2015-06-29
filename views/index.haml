@@ -1,3 +1,6 @@
 %h2 Main
 :markdown
   Our Credit Card Service is up and running!
+  ---
+- if @current_user
+  = haml :my_cards, locals: { result: result }

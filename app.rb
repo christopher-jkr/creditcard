@@ -5,6 +5,7 @@ require_relative './model/user'
 require 'config_env'
 require_relative './helpers/creditcardapi_helper'
 require 'rack/ssl-enforcer'
+require 'dalli'
 
 configure :development, :test do
   require 'hirb'
@@ -25,6 +26,14 @@ class CreditCardAPI < Sinatra::Base
   configure do
     use Rack::Session::Cookie, secret: settings.session_secret
     use Rack::Flash, sweep: true
+
+    set :ops_cache,
+        Dalli::Client.new((ENV['MEMCACHIER_SERVERS'] || '').split(','),
+                          username: ENV['MEMCACHIER_USERNAME'],
+                          password: ENV['MEMCACHIER_PASSWORD'],
+                          socket_timeout: 1.5,
+                          socket_failure_delay: 0.2
+                         )
   end
 
   helpers Sinatra::Param
@@ -57,6 +66,42 @@ class CreditCardAPI < Sinatra::Base
     else
       flash[:error] = 'Exists, does not this account'
       redirect '/login'
+    end
+  end
+
+  get '/callback' do
+    result = HTTParty.post(
+      'https://github.com/login/oauth/access_token',
+      body: { client_id: ENV['CLIENT_ID'], code: params['code'],
+              client_secret: ENV['CLIENT_SECRET'] },
+      headers: { 'Accept' => 'application/json' }
+    )
+    ind, links = Float, ['', '/emails']
+    a, b = git_get_info(links, result['access_token'])
+    b.each_with_index do |email, idx|
+      ind = idx if email['primary'] == true && email['verified'] == true
+    end
+    if ind.class == Class
+      flash[:error] = 'Please verify your github primary email address!'
+      return redirect '/login'
+    end
+    login, email = a['login'], b[ind]['email']
+    if User.find_by_email(email)
+      user = User.find_by_email(email)
+      return login_user(user)
+    end
+    jwt = git_jwt(email)
+    git_user = git_reg(login, email)
+    git_repeat(git_user, login, jwt)
+  end
+
+  post '/new_username' do
+    # TODO: Add error message in case of JWT change
+    if params['n_user'] && params['jwt']
+      n_user, jwt = params['n_user'], params['jwt']
+      payload = git_jwt_dec(jwt)
+      git_user = git_reg(n_user, payload['email'])
+      git_repeat(git_user, n_user, jwt)
     end
   end
 
@@ -106,7 +151,8 @@ class CreditCardAPI < Sinatra::Base
   end
 
   get '/' do
-    haml :index
+    result = memcache_fetch if @current_user
+    haml :index, locals: { result: result }
   end
 
   get '/user/:username', auth: [:user] do
@@ -164,16 +210,7 @@ class CreditCardAPI < Sinatra::Base
 
   get '/credit_card/all/?', auth: [:user] do
     begin
-      cards = api_retrieve_card
-      cards_arr = cards.body.gsub('}{', '}}{{').split('}{')
-      logger.info(cards_arr)
-      arr = cards_arr.map do |var|
-        JSON.parse(var).to_a
-      end
-      result = arr.map do |var|
-        var.map { |_e, f| f }
-      end
-      logger.info(result)
+      result = memcache_fetch
       haml :my_cards, locals: { result: result }
     rescue => e
       logger.error(e)

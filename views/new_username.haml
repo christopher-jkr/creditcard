@@ -1,0 +1,8 @@
+%h2 Please choose a new username
+%form{ action: '/new_username', method: 'post', id: 'username-form' }
+  %label{ for: 'c_user' } Current Choice:
+  %input{ type: 'text', name: 'c_user', id: 'c_input', value: "#{user[0]}" }
+  %label{ for: 'n_user' } New Username:
+  %input{ type: 'text', name: 'n_user', id: 'n_user_input' }
+  %input{ type: 'hidden', name: 'jwt', id: 'jwt_input', value: "#{user[1]}" }
+  %input{ type: 'submit', id: 'username-form-submit', value: 'submit' }
