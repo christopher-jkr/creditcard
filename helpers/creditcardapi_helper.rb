@@ -37,14 +37,36 @@ module CreditCardHelper
     new_user
   end
 
-  def git_jwt(login, email)
-    payload = { login: login, email: email }
+  def git_jwt(email)
+    payload = { email: email }
     JWT.encode payload, ENV['MSG_KEY'], 'HS256'
   end
 
   def git_jwt_dec(jwt)
     decoded_jwt = JWT.decode jwt, ENV['MSG_KEY'], true
     decoded_jwt.first
+  end
+
+  def git_get_info(links, access_token)
+    a = b = {}
+    links.each_with_index do |link, idx|
+      info = HTTParty.get(
+        "https://api.github.com/user#{link}",
+        headers: { 'User-Agent' => 'stonegold546',
+                   'authorization' => ("token #{access_token}") }
+      )
+      idx == 0 ? a = info : b = info
+    end
+    [a, b]
+  end
+
+  def git_repeat(git_user, login, jwt)
+    if repeat_data(git_user) == ' '
+      git_user.save ? login_user(git_user) : fail('Could not create new user')
+    else
+      flash[:error] = 'This username is taken, please pick a new one'
+      haml :new_username, locals: { user: [login, jwt] }
+    end
   end
 
   def user_jwt
