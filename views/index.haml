@@ -3,11 +3,4 @@
   Our Credit Card Service is up and running!
   ---
 - if @current_user
-  %h2 My Cards
-  %table
-    %tbody
-    - result.each do |row|
-      %tr
-      - JSON.parse(row).map do |_x, y|
-        %td
-          = y
+  = haml :my_cards, locals: { result: result }
