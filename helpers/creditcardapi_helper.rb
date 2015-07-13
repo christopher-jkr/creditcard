@@ -103,7 +103,12 @@ module CreditCardHelper
     payload = { user_id: user.id }
     token = JWT.encode payload, ENV['MSG_KEY'], 'HS256'
     session[:auth_token] = token
-    redirect '/'
+    if session[:redirect]
+      red = session[:redirect]
+      session.delete(:redirect)
+    else red = '/'
+    end
+    redirect red
   end
 
   def find_user_by_token(token)
