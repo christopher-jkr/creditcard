@@ -120,7 +120,6 @@ module CreditCardHelper
   end
 
   def email_registration_verification(registration)
-    # TODO: Add redirect to payload
     payload = create_payload(registration)
     fail repeat_data(registration) unless repeat_data(registration) == ' '
     token = JWT.encode payload, ENV['MSG_KEY'], 'HS256'
@@ -195,7 +194,6 @@ module CreditCardHelper
   end
 
   def create_account_with_enc_token(enc_msg)
-    # TODO: Collect redirect from payload, save in session[:redirect]
     token = decrypt_message(enc_msg)
     payload = (JWT.decode token, ENV['MSG_KEY']).first
     reg = Registration.new(payload)
