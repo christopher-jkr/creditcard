@@ -42,6 +42,7 @@ class CreditCardAPI < Sinatra::Base
     def auth(*types)
       condition do
         if (types.include? :user) && !@current_user
+          session[:redirect] = request.env['REQUEST_URI']
           flash[:error] = 'You must be logged in to view that page'
           redirect '/login'
         end
